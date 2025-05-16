@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "readme-i18n"
+version = "0.1.0"
+description = "A pre-commit hook to check and update README translations."
+authors = [{ name = "Marius Bendixen", email = "screaming.idiots@outlook.de" }]
+license = { text = "MIT" }
+dependencies = []
+
+[project.scripts]
+readme-i18n-hook = "readme_i18n.hook:main"

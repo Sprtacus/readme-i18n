@@ -1,0 +1,9 @@
+repos:
+  - repo: local
+    hooks:
+      - id: readme-i18n-check
+        name: Check README translations
+        entry: readme-i18n-hook
+        language: python
+        types: [text]
+        stages: [push]
