@@ -1,3 +1,6 @@
+import subprocess
+import sys
+
 def main():
     print("Checking for translation updates...")
     changed_files = subprocess.getoutput("git diff --name-only origin/HEAD").splitlines()
