@@ -35,14 +35,14 @@ def get_staged_files():
     return output.splitlines()
 
 def main():
-    print("Checking for translation updates...")
+    print("Checking for translation updates...", file=sys.stderr)
 
     changed_files = get_staged_files() 
 
     print("Gestagte Dateien:", changed_files)
 
     if "README.md" in changed_files:
-        print("README.md wurde geändert. Übersetzungen werden aktualisiert...")
+        print("README.md wurde geändert. Übersetzungen werden aktualisiert...", file=sys.stderr)
 
         api_key = load_api_key()
         if not api_key:
