@@ -20,13 +20,12 @@ def translate_readme(api_key):
         print("Fehler bei der Übersetzung:", str(e))
         sys.exit(1)
 
-    with open("README.en.md", "w", encoding="utf-8") as f:
+    with open("README.de.md", "w", encoding="utf-8") as f:
         f.write(result.text)
     
-    print("README.en.md wurde erfolgreich aktualisiert.")
+    print("README.de.md wurde erfolgreich aktualisiert.")
 
 def main():
-    return 0
     print("Checking for translation updates...")
     changed_files = subprocess.getoutput("git diff --name-only HEAD~1").splitlines()
 
