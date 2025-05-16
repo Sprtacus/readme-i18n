@@ -26,6 +26,7 @@ def translate_readme(api_key):
     print("README.en.md wurde erfolgreich aktualisiert.")
 
 def main():
+    return 0
     print("Checking for translation updates...")
     changed_files = subprocess.getoutput("git diff --name-only HEAD~1").splitlines()
 
@@ -35,7 +36,7 @@ def main():
         api_key = load_api_key()
         if not api_key:
             print("Fehlender API Key. Bitte .env-Datei mit DEEPL_API_KEY einrichten.")
-            sys.exit(0)
+            sys.exit(1)
 
         translate_readme(api_key)
 
