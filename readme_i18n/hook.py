@@ -37,7 +37,7 @@ def get_staged_files():
 def main():
     print("Checking for translation updates...")
 
-    changed_files = get_staged_files()
+    changed_files = get_staged_files() 
 
     print("Gestagte Dateien:", changed_files)
 
