@@ -64,4 +64,5 @@ def main():
     return 0
 
 if __name__ == "__main__":
+    print("Running translation hook...")
     sys.exit(main())
