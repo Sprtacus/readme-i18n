@@ -35,7 +35,7 @@ def main():
         api_key = load_api_key()
         if not api_key:
             print("Fehlender API Key. Bitte .env-Datei mit DEEPL_API_KEY einrichten.")
-            sys.exit(1)
+            sys.exit(0)
 
         translate_readme(api_key)
 
