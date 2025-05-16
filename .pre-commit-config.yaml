@@ -6,4 +6,4 @@ repos:
         entry: readme-i18n-hook
         language: python
         types: [text]
-        stages: [push]
+        stages: [commit]
