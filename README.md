@@ -17,11 +17,11 @@ TEST
 Clone this repository into your project (e.g. under `tools/`):
 
 ```bash
-git clone https://github.com/YOUR-USERNAME/readme-i18n.git tools/readme-i18n
+git clone https://github.com/Sprtacus/readme-i18n.git tools/readme-i18n
 ```
 or add it as a submodule:
 ```bash
-git submodule add https://github.com/YOUR-USERNAME/readme-i18n.git tools/readme-i18n
+git submodule add https://github.com/Sprtacus/readme-i18n.git tools/readme-i18n
 ```
 
 ## 📄 License
