@@ -1,14 +1,11 @@
 def main():
     print("Checking for translation updates...")
-
-    # Hier prüfst du, ob sich z. B. README.md geändert hat
-    # Wenn ja:
-    confirm = input("README.md wurde geändert. Übersetzungen aktualisieren? [y/N]: ")
-    if confirm.lower() == "y":
-        print("Übersetzungen werden aktualisiert...")
-        # update_translations()
-    else:
-        print("Überspringe Aktualisierung.")
+    changed_files = subprocess.getoutput("git diff --name-only origin/HEAD").splitlines()
+    if "README.md" in changed_files:
+        print("README.md wurde geändert. Übersetzungen werden aktualisiert...")
+        # z. B. update_translations()
+        return 1  # Oder 0, wenn der Hook erfolgreich durchlaufen soll
+    return 0
 
 if __name__ == "__main__":
     main()
