@@ -1,14 +1,15 @@
 <!-- readme-i18n start -->
-## 🌐 Translations
-
-[EN](../README.md) | [DE](README.DE.md) | [ZH](README.ZH.md)
-
-<sub>Translations generated with [readme‑i18n](https://github.com/Sprtacus/readme-i18n/) 🚀</sub>
+<p align="right">
+  <strong>Sprachen:</strong> <a href="../README.md">🇬🇧 EN</a> ·
+  <a href="README.DE.md">🇩🇪 DE</a> ·
+  <a href="README.ZH.md">🇨🇳 ZH</a><br>
+  <sub>automatisch erzeugt mit <a href="https://github.com/Sprtacus/readme-i18n/">readme-i18n</a> unter Verwendung von DeepL</sub>
+</p>
 <!-- readme-i18n end -->
 
 # readme-i18n
-
-Automatische Übersetzung Ihrer `README.md` in mehrere Sprachen mit Hilfe der [DeepL API](https://www.deepl.com/docs-api/).  
+Test
+Übersetzen Sie Ihre `README.md` automatisch in mehrere Sprachen mit Hilfe der [DeepL API](https://www.deepl.com/docs-api/).  
 Ideal für Entwickler, die mehrsprachige Dokumentation auf dem neuesten Stand halten wollen - manuell oder automatisch über Git-Hooks.
 
 ## ✨ Merkmale
