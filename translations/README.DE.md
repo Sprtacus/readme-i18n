@@ -8,19 +8,19 @@
 <!-- readme-i18n end -->
 
 # readme-i18n
-
+Test
 > ⚠️ **Dieses Projekt befindet sich in der frühen Entwicklungsphase und wird in meiner Freizeit gepflegt.** ⚠️
-> Erwarten Sie bahnbrechende Änderungen - Beiträge und Ideen sind immer willkommen!
+> Rechnen Sie mit Änderungen - Beiträge und Ideen sind immer willkommen!
 
-Übersetzen Sie Ihre `README.md` automatisch in mehrere Sprachen mit Hilfe der [DeepL API](https://www.deepl.com/docs-api/).  
-Ideal für Entwickler, die ihre mehrsprachige Dokumentation auf dem neuesten Stand halten wollen - manuell oder automatisch über Git-Hooks.
+Übersetzen Sie Ihr `README.md` automatisch in mehrere Sprachen mit Hilfe der [DeepL API](https://www.deepl.com/docs-api/).  
+Ideal für Entwickler, die mehrsprachige Dokumentation auf dem neuesten Stand halten wollen - manuell oder automatisch über Git-Hooks.
 
 ## ✨ Merkmale
 
-- Übersetzt Ihre `README.md` in jede DeepL-unterstützte Sprache
+- Übersetzt Ihr `README.md` in jede DeepL-unterstützte Sprache
 - Erzeugt und aktualisiert `README.xx.md`-Dateien (z.B. `README.de.md`, `README.fr.md`)
 - Einfache Integration in jedes bestehende Git-Projekt
-- Unterstützung von `.env` für die sichere Handhabung von API-Schlüsseln
+- `.env`-Unterstützung für die sichere Handhabung von API-Schlüsseln
 - Optionaler Git-Hook: automatische Übersetzung bei jedem Push
 - MIT lizenziert - frei für private und kommerzielle Nutzung
 
@@ -28,7 +28,7 @@ Ideal für Entwickler, die ihre mehrsprachige Dokumentation auf dem neuesten Sta
 
 Klonen Sie dieses Repository in Ihr Projekt (z.B. unter `tools/`):
 
-``bash
+```bash
 git clone https://github.com/Sprtacus/readme-i18n.git tools/readme-i18n
 ```
 oder fügen Sie es als Submodul hinzu:
