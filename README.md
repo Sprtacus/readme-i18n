@@ -8,12 +8,12 @@
 <!-- readme-i18n end -->
 
 # readme-i18n
-Test
+
 Automatically translate your `README.md` into multiple languages using the [DeepL API](https://www.deepl.com/docs-api/).  
 Ideal for developers who want to keep multilingual documentation up to date – manually or automatically via Git hooks.
 
 ## ✨ Features
-
+Test
 - Translates your `README.md` into any DeepL-supported language
 - Generates and updates `README.xx.md` files (e.g. `README.de.md`, `README.fr.md`)
 - Easy integration into any existing Git project

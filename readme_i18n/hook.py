@@ -2,11 +2,9 @@ from __future__ import annotations
 
 """readme_i18n.py – translate README and keep a multilingual link-header in **every** README.
 
-🔧  *Debug-friendly*: ausführliche DEBUG-Logs lassen sich per Environment-Variable
-     `README_I18N_DEBUG=1` aktivieren.
-🌐  *Flag-Emojis nur via* **flags.json**: Es gibt **keine** eingebauten Defaults mehr.
-     Wenn `flags.json` fehlt oder einen ISO-Code nicht enthält, wird einfach kein
-     Emoji angezeigt.
+🔧  *Debug-friendly*: ausführliche DEBUG-Logs via `README_I18N_DEBUG=1`.
+🌐  *Flag-Emojis ausschließlich via* **flags.json** – gesucht in
+     ``$REPO_ROOT`` *und* eine Ebene oberhalb von ``hook.py``.
 """
 
 import argparse
@@ -42,16 +40,14 @@ def detect_repo_root() -> Path:
         root = subprocess.check_output(
             ["git", "rev-parse", "--show-toplevel"], text=True, stderr=subprocess.DEVNULL
         ).strip()
-        logging.debug("Detected git repo root: %s", root)
         return Path(root)
-    except Exception as exc:
-        logging.debug("Falling back to CWD for repo root detection: %s", exc)
+    except Exception:
         return Path.cwd()
 
 
 REPO_ROOT: Path = detect_repo_root()
+SCRIPT_DIR: Path = Path(__file__).resolve().parent
 README_PATH: Path = REPO_ROOT / "README.md"
-logging.debug("REPO_ROOT=%s, README_PATH=%s", REPO_ROOT, README_PATH)
 
 # ---------------------------------------------------------------------------
 # Configuration dataclass
@@ -73,45 +69,33 @@ class Config:
         defaults = cls()
         pyproject = REPO_ROOT / "pyproject.toml"
         if not pyproject.exists():
-            logging.debug("pyproject.toml not found – using default config")
             return defaults
-
-        with pyproject.open("rb") as f:
-            data = tomllib.load(f)
-        cfg = data.get("tool", {}).get("readme-i18n", {})
-        logging.debug("Loaded config from pyproject: %s", cfg)
-
+        cfg = tomllib.load(pyproject.open("rb")).get("tool", {}).get("readme-i18n", {})
         return cls(
             source_lang=cfg.get("source_lang", defaults.source_lang),
             languages=cfg.get("languages", defaults.languages),
             output_dir=REPO_ROOT / cfg.get("output_dir", defaults.output_dir.name),
             template=cfg.get("template", defaults.template),
-            header_template_path=REPO_ROOT
-            / cfg.get("header_template_path", defaults.header_template_path.name),
+            header_template_path=REPO_ROOT / cfg.get("header_template_path", defaults.header_template_path.name),
             marker_start=cfg.get("marker_start", defaults.marker_start),
             marker_end=cfg.get("marker_end", defaults.marker_end),
         )
 
 
 # ---------------------------------------------------------------------------
-# Flag-Emoji Mapping (only via flags.json)
+# Flag-Emoji mapping – only via flags.json (search two locations)
 # ---------------------------------------------------------------------------
 
 FLAGS: Dict[str, str] = {}
-FLAGS_FILE = REPO_ROOT / "flags.json"
-
-if FLAGS_FILE.exists():
-    try:
-        with FLAGS_FILE.open("r", encoding="utf-8") as fp:
-            user_flags = json.load(fp)
-        if not isinstance(user_flags, dict):
-            raise ValueError("flags.json must contain an object mapping ISO codes to emojis")
-        FLAGS = {k.upper(): v for k, v in user_flags.items()}
-        logging.debug("Loaded %d flags from %s", len(FLAGS), FLAGS_FILE)
-    except Exception as exc:
-        logging.warning("Failed to load flags.json (%s). No flag emojis will be shown.", exc)
-else:
-    logging.info("flags.json not found – no flag emojis will be displayed.")
+for fp in (REPO_ROOT / "flags.json", SCRIPT_DIR.parent / "flags.json"):
+    if fp.exists():
+        try:
+            data = json.load(fp.open())
+            if isinstance(data, dict):
+                FLAGS = {k.upper(): v for k, v in data.items()}
+                break
+        except Exception as exc:
+            logging.warning("Failed to load %s: %s", fp, exc)
 
 CREDIT_LINK = '<a href="https://github.com/Sprtacus/readme-i18n/">readme-i18n</a>'
 
@@ -121,13 +105,12 @@ CREDIT_LINK = '<a href="https://github.com/Sprtacus/readme-i18n/">readme-i18n</a
 
 def _load_header_template(cfg: Config) -> str:
     if cfg.header_template_path.exists():
-        raw = cfg.header_template_path.read_text(encoding="utf-8")
+        raw = cfg.header_template_path.read_text("utf-8")
     else:
         raw = (
             "<p align=\"right\">\n  <strong>{languages_label}</strong> {links}<br>\n"
             "  <sub>{credit}</sub>\n</p>"
         )
-
     if cfg.marker_start not in raw:
         raw = f"{cfg.marker_start}\n{raw}"
     if cfg.marker_end not in raw:
@@ -139,27 +122,26 @@ def _relpath(target: Path, base: Path) -> str:
     return os.path.relpath(target, base).replace(os.sep, "/")
 
 
-def _build_links(cfg: Config, current_file: Path) -> str:
-    cur_dir = current_file.parent
-    lines: List[str] = []
+def _build_links(cfg: Config, cur_file: Path) -> str:
+    base = cur_file.parent
+    parts: List[str] = []
 
-    def add(label: str, target: Path, code: str):
-        emoji = FLAGS.get(code.upper(), "")
-        lines.append(f'<a href="{_relpath(target, cur_dir)}">{emoji} {label}</a>')
+    def add(label: str, dest: Path, code: str):
+        parts.append(f'<a href="{_relpath(dest, base)}">{FLAGS.get(code.upper(), "")} {label}</a>')
 
     add(cfg.source_lang, README_PATH, cfg.source_lang)
     for code in cfg.languages:
         fname = cfg.template.format(basename=README_PATH.stem, lang=code, ext=README_PATH.suffix)
         add(code, cfg.output_dir / fname, code)
 
-    return " ·\n  ".join(lines)  # newline+two spaces => markdown line-break
+    return " ·\n  ".join(parts)
 
 
-def _translate_static(text: str, target_lang: str, tr: deepl.Translator | None) -> str:
-    if target_lang == "EN" or tr is None:
+def _translate(text: str, lang: str, tr: deepl.Translator | None) -> str:
+    if lang == "EN" or tr is None:
         return text
     try:
-        return tr.translate_text(text, target_lang=target_lang).text
+        return tr.translate_text(text, target_lang=lang).text
     except Exception:
         return text
 
@@ -168,31 +150,27 @@ def _build_header(cfg: Config, file_: Path, lang: str, tr: deepl.Translator | No
     tmpl = _load_header_template(cfg)
     return tmpl.format(
         links=_build_links(cfg, file_),
-        languages_label=_translate_static("Languages:", lang, tr),
-        credit=_translate_static(
-            f"automatically generated with {CREDIT_LINK} using DeepL", lang, tr
-        ),
+        languages_label=_translate("Languages:", lang, tr),
+        credit=_translate(f"automatically generated with {CREDIT_LINK} using DeepL", lang, tr),
     )
 
 
 def _strip_header(text: str, cfg: Config) -> str:
-    pat = re.compile(rf"{re.escape(cfg.marker_start)}[\s\S]*?{re.escape(cfg.marker_end)}\n?", re.I)
-    return re.sub(pat, "", text).lstrip()
+    return re.sub(rf"{re.escape(cfg.marker_start)}[\s\S]*?{re.escape(cfg.marker_end)}\n?", "", text, flags=re.I).lstrip()
 
 
 def ensure_header(path: Path, cfg: Config, lang: str, tr: deepl.Translator | None) -> bool:
-    original = path.read_text(encoding="utf-8") if path.exists() else ""
+    original = path.read_text("utf-8") if path.exists() else ""
     body = _strip_header(original, cfg)
-    new = f"{_build_header(cfg, path, lang, tr)}\n\n{body}".rstrip() + "\n"
-
-    if new != original:
-        path.write_text(new, encoding="utf-8")
+    new_content = f"{_build_header(cfg, path, lang, tr)}\n\n{body}".rstrip() + "\n"
+    if new_content != original:
+        path.write_text(new_content, "utf-8")
         logging.info("Header updated in %s", path.relative_to(REPO_ROOT))
         return True
     return False
 
 # ---------------------------------------------------------------------------
-# Translation helpers
+# Translation logic
 # ---------------------------------------------------------------------------
 
 def load_api_key() -> str | None:
@@ -200,32 +178,30 @@ def load_api_key() -> str | None:
     return os.getenv("DEEPL_API_KEY")
 
 
-def translate_text(text: str, tr: deepl.Translator, lang: str) -> str | None:
+def translate_body(txt: str, tr: deepl.Translator, lang: str) -> str | None:
     try:
-        return tr.translate_text(text, target_lang=lang).text
+        return tr.translate_text(txt, target_lang=lang).text
     except deepl.DeepLException as exc:
         logging.error("Error translating to %s: %s", lang, exc)
         return None
 
 
-def build_translations(readme: Path, api_key: str, cfg: Config) -> List[Path]:
-    tr = deepl.Translator(api_key)
-    src_body = _strip_header(readme.read_text(encoding="utf-8"), cfg)
+def build_translations(readme: Path, key: str, cfg: Config) -> List[Path]:
+    translator = deepl.Translator(key)
+    source = _strip_header(readme.read_text("utf-8"), cfg)
     cfg.output_dir.mkdir(parents=True, exist_ok=True)
-
-    out: List[Path] = []
+    created: List[Path] = []
     for lang in cfg.languages:
-        txt = translate_text(src_body, tr, lang)
-        if txt is None:
+        text = translate_body(source, translator, lang)
+        if text is None:
             continue
         fname = cfg.template.format(basename=readme.stem, lang=lang, ext=readme.suffix)
-        dest = cfg.output_dir / fname
-        dest.write_text(txt, encoding="utf-8")
-        out.append(dest)
-        logging.info("Written %s", dest.relative_to(REPO_ROOT))
-        ensure_header(dest, cfg, lang, tr)
-
-    return out
+        target = cfg.output_dir / fname
+        target.write_text(text, "utf-8")
+        created.append(target)
+        logging.info("Generated %s", target.relative_to(REPO_ROOT))
+        ensure_header(target, cfg, lang, translator)
+    return created
 
 # ---------------------------------------------------------------------------
 # CLI
@@ -240,7 +216,6 @@ def main(argv: List[str] | None = None) -> int:
     logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
     if os.getenv("README_I18N_DEBUG"):
         logging.getLogger().setLevel(logging.DEBUG)
-        logging.debug("Debug logging enabled")
 
     cfg = Config.load()
     logging.info("source=%s, languages=%s", cfg.source_lang, cfg.languages)
@@ -248,12 +223,26 @@ def main(argv: List[str] | None = None) -> int:
     if ensure_header(README_PATH, cfg, cfg.source_lang, None):
         subprocess.run(["git", "add", str(README_PATH)], check=False)
 
-    changed = args.files if args.files else subprocess.getoutput("git diff --cached --name-only").splitlines()
-    if README_PATH.name not in changed:
+    staged = args.files if args.files else subprocess.getoutput("git diff --cached --name-only").splitlines()
+    if README_PATH.name not in staged:
         logging.info("README.md not staged; nothing to do.")
         return 0
 
     if args.check:
         return 1
 
-    api_key = load_api
+    api_key = load_api_key()
+    if not api_key:
+        logging.warning("No DEEPL_API_KEY found – skipping translation.")
+        return 0
+
+    created = build_translations(README_PATH, api_key, cfg)
+    if not created:
+        return 1
+
+    subprocess.run(["git", "add", *map(str, created)], check=False)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

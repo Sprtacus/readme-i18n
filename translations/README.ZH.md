@@ -8,14 +8,14 @@
 <!-- readme-i18n end -->
 
 # readme-i18n
-测试
-使用 [DeepL API](https://www.deepl.com/docs-api/) 将您的 `README.md` 自动翻译成多种语言。  
+
+使用 [DeepL API](https://www.deepl.com/docs-api/) 自动将 `README.md` 翻译成多种语言。  
 对于希望手动或通过 Git 钩子自动更新多语言文档的开发人员来说，这是理想之选。
 
 ## ✨ 功能
-
+测试
 - 将 `README.md` 翻译成任何 DeepL 支持的语言
-- 生成并更新 `README.xx.md` 文件（例如 `README.de.md`, `README.fr.md`)
+- 生成并更新 `README.xx.md` 文件（如 `README.de.md`, `README.fr.md`)
 - 轻松集成到任何现有的 Git 项目中
 - 支持 `.env` 以安全处理 API 密钥
 - 可选的 Git 钩子：每次推送时自动翻译
