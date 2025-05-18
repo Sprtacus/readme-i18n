@@ -4,10 +4,10 @@ from __future__ import annotations
 
 Enhancements
 ------------
-* Header is now injected/updated **in the translated files as well**, so every language
-  page offers language switching.
-* Links are calculated **relative to each file’s location** – hence they stay valid even
-  when `readme_i18n` lives in a subfolder or the output directory is nested.
+* **Header now bigger** (level‑2 heading) and includes a credit line:
+  “Translations generated with *readme‑i18n*”.
+* Still fully customisable via `.readme-i18n-header.md` – simply remove or edit the
+  credit line if you prefer another wording.
 """
 
 import argparse
@@ -16,7 +16,6 @@ import os
 import re
 import subprocess
 import sys
-import textwrap
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import List
@@ -95,15 +94,18 @@ class Config:
 
 
 def _load_header_template(cfg: Config) -> str:
-    template = (
-        cfg.header_template_path.read_text(encoding="utf-8")
-        if cfg.header_template_path.exists()
-        else "**Available languages:** {links}"
-    )
+    if cfg.header_template_path.exists():
+        template = cfg.header_template_path.read_text(encoding="utf-8")
+    else:
+        template = (
+            "## 🌐 Translations\n\n{links}\n\n"
+            "<sub>Translations generated with "
+            "[readme‑i18n](https://github.com/Sprtacus/readme-i18n/) 🚀</sub>"
+        )
+
     if "{links}" not in template:
         template += "\n{links}"
 
-    # Ensure both markers present
     if cfg.marker_start not in template:
         template = f"{cfg.marker_start}\n{template}"
     if cfg.marker_end not in template:
@@ -113,24 +115,19 @@ def _load_header_template(cfg: Config) -> str:
 
 
 def _relpath(target: Path, base: Path) -> str:
-    """Return POSIX relpath from *base* directory to *target* (for markdown links)."""
     return os.path.relpath(target, base).replace(os.sep, "/")
 
 
 def _build_links(cfg: Config, current_file: Path) -> str:
-    """Create language links relative to *current_file*."""
-
     cur_dir = current_file.parent
 
     def link(label: str, target: Path) -> str:
         return f"[{label}]({_relpath(target, cur_dir)})"
 
     links = [link(cfg.source_lang, README_PATH)]
-
     for code in cfg.languages:
-        t_name = cfg.template.format(basename=README_PATH.stem, lang=code, ext=README_PATH.suffix)
-        links.append(link(code, cfg.output_dir / t_name))
-
+        fname = cfg.template.format(basename=README_PATH.stem, lang=code, ext=README_PATH.suffix)
+        links.append(link(code, cfg.output_dir / fname))
     return " | ".join(links)
 
 
@@ -144,8 +141,6 @@ def _strip_header(text: str, cfg: Config) -> str:
 
 
 def ensure_header(file_path: Path, cfg: Config) -> bool:
-    """Ensure a single, up‑to‑date header exists in *file_path*. Returns True if modified."""
-
     original = file_path.read_text(encoding="utf-8") if file_path.exists() else ""
     body = _strip_header(original, cfg)
     new = f"{_build_header(cfg, file_path)}\n\n{body}".rstrip() + "\n"
@@ -190,9 +185,7 @@ def build_translations(readme: Path, api_key: str, cfg: Config) -> List[Path]:
         path.write_text(txt, encoding="utf-8")
         generated.append(path)
         logging.info("Written %s", path.relative_to(REPO_ROOT))
-
-        # Inject/update header in the translation
-        ensure_header(path, cfg)
+        ensure_header(path, cfg)  # header for translation
 
     return generated
 
@@ -206,7 +199,7 @@ def main(argv: List[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Translate README via DeepL and maintain multilingual headers."
     )
-    parser.add_argument("files", nargs="*", help="Paths from pre‑commit (optional).")
+    parser.add_argument("files", nargs="*", help="Paths from pre-commit (optional).")
     parser.add_argument("--check", action="store_true", help="Exit 1 if README.md is staged.")
     args = parser.parse_args(argv)
 
@@ -215,12 +208,10 @@ def main(argv: List[str] | None = None) -> int:
     cfg = Config.load()
     logging.info("source=%s, languages=%s", cfg.source_lang, cfg.languages)
 
-    # Update/inject header in root README first
     if ensure_header(README_PATH, cfg):
         subprocess.run(["git", "add", str(README_PATH)], check=False)
 
     changed = args.files if args.files else subprocess.getoutput("git diff --cached --name-only").splitlines()
-
     if README_PATH.name not in changed:
         logging.info("README.md not staged; nothing to do.")
         return 0
