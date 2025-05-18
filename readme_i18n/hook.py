@@ -104,12 +104,12 @@ def _load_header_template(cfg: Config) -> str:
         )
 
     if "{links}" not in template:
-        template += "{links}"
+        template += "\n{links}"
 
     if cfg.marker_start not in template:
-        template = f"{cfg.marker_start},{template}"
+        template = f"{cfg.marker_start}\n{template}"
     if cfg.marker_end not in template:
-        template = f"{template},{cfg.marker_end}"
+        template = f"{template}\n{cfg.marker_end}"
 
     return template
 
