@@ -3,7 +3,7 @@ Translate a project's README into multiple languages using the DeepL API and
 persist the results next to the original file. Designed to be used from a
 pre‑commit hook but also works as a standalone CLI.
 
-Author: Marius (Hiwi / Informatiker)
+Author: Marius
 """
 
 from __future__ import annotations
