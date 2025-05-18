@@ -15,8 +15,8 @@
 Übersetzen Sie Ihre `README.md` automatisch in mehrere Sprachen mit Hilfe der [DeepL API](https://www.deepl.com/docs-api/).  
 Ideal für Entwickler, die ihre mehrsprachige Dokumentation auf dem neuesten Stand halten wollen - manuell oder automatisch über Git-Hooks.
 
-## ✨ Funktionen
-Testen Sie
+## ✨ Merkmale
+
 - Übersetzt Ihre `README.md` in jede DeepL-unterstützte Sprache
 - Erzeugt und aktualisiert `README.xx.md`-Dateien (z.B. `README.de.md`, `README.fr.md`)
 - Einfache Integration in jedes bestehende Git-Projekt
