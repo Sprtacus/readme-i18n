@@ -16,7 +16,7 @@ Automatically translate your `README.md` into multiple languages using the [Deep
 Ideal for developers who want to keep multilingual documentation up to date – manually or automatically via Git hooks.
 
 ## ✨ Features
-
+ads
 - Translates your `README.md` into any DeepL-supported language
 - Generates and updates `README.xx.md` files (e.g. `README.de.md`, `README.fr.md`)
 - Easy integration into any existing Git project

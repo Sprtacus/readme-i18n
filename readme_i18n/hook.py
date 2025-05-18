@@ -96,18 +96,31 @@ CREDIT_LINK = '<a href="https://github.com/Sprtacus/readme-i18n/">readme-i18n</a
 # Segment‑Schutz (Code, Inline‑Code, Emoji)
 # ---------------------------------------------------------------------------
 
-# Dynamisch erstelltes Emoji‑Pattern (Flaggen plus einfache Bild‑Emojis bleiben safe)
-_EMOJI_PART = "|".join(map(re.escape, FLAGS.values())) if FLAGS else ""
+EMOJI_PATTERN = (
+    "[\U0001F600-\U0001F64F]"      # Emoticons (e.g., U+1F600 to U+1F64F)
+    "|[\U0001F300-\U0001F5FF]"     # Miscellaneous Symbols and Pictographs
+    "|[\U0001F680-\U0001F6FF]"     # Transport and Map Symbols
+    "|[\U0001F1E6-\U0001F1FF]{2}"  # Regional Indicator Symbols (used for country flags)
+    "|[\U00002600-\U000026FF]"     # Miscellaneous Symbols (e.g., weather, zodiac)
+    "|[\U00002700-\U000027BF]"     # Dingbats (e.g., checkmarks, arrows)
+    "|[\U0001F900-\U0001F9FF]"     # Supplemental Symbols and Pictographs (newer emoji range)
+    "|[\U0001FA70-\U0001FAFF]"     # Symbols and Pictographs Extended-A (recent emoji additions)
+    "|[\U00002500-\U00002BEF]"     # Box Drawing, Block Elements, and some CJK symbols
+    "|[\U0001F018-\U0001F270]"     # Various older symbols and pictographs
+    "|[\U0001F000-\U0001F02F]"     # Mahjong Tiles and Domino Tiles
+)
 
-_EXCLUSION_PATTERN = re.compile(
+EMOJI_MODIFIERS = "[\U0001F3FB-\U0001F3FF\U0000200D\U0000FE0F]"
+FULL_EMOJI_PATTERN = rf"(?:{EMOJI_PATTERN})(?:{EMOJI_MODIFIERS})*"
+
+EXCLUSION_PATTERN = re.compile(
     rf"""(
-        ```[\s\S]*?```               # Fenced code‑block  (dotall)
-      | `[^`\n]+`                     # Inline code       (keine Zeilenumbrüche)
-      {('|'+_EMOJI_PART if _EMOJI_PART else '')}  # Flag/Emoji (optional)
+        ```[\s\S]*?```          # Fenced code-block
+      | `[^`\n]+`               # Inline code
+      | {FULL_EMOJI_PATTERN}    # Emojis (inkl. Modifier)
     )""",
     re.VERBOSE,
 )
-
 
 def protect_segments(text: str) -> Tuple[str, Dict[str, str]]:
     """Ersetzt alle auszuklammernden Segmente durch Platzhalter und liefert
@@ -122,7 +135,7 @@ def protect_segments(text: str) -> Tuple[str, Dict[str, str]]:
         counter += 1
         return token
 
-    cleaned = _EXCLUSION_PATTERN.sub(_repl, text)
+    cleaned = EXCLUSION_PATTERN.sub(_repl, text)
     return cleaned, mapping
 
 
