@@ -25,3 +25,6 @@ output_dir = "translations"
 # {lang}     = language code
 # {ext}      = original file extension (including dot)
 template = "{basename}.{lang}{ext}"
+# The following markers are used to identify the start and end of the translation header block in the README file.
+marker_start = "<!-- readme-i18n start -->"
+marker_end = "<!-- readme-i18n end -->"
