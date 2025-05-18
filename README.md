@@ -1,6 +1,10 @@
 <!-- readme-i18n start -->
-## Translations: [EN](README.md) | [DE](translations/README.DE.md) | [ZH](translations/README.ZH.md)
-<sub>Translations generated with [readme‑i18n](https://github.com/Sprtacus/readme-i18n/)</sub>
+<p align="right">
+  <strong>Languages:</strong> <a href="README.md">🇬🇧 EN</a> ·
+  <a href="translations/README.DE.md">🇩🇪 DE</a> ·
+  <a href="translations/README.ZH.md">🇨🇳 ZH</a><br>
+  <sub>automatically generated with <a href="https://github.com/Sprtacus/readme-i18n/">readme-i18n</a> using DeepL</sub>
+</p>
 <!-- readme-i18n end -->
 
 # readme-i18n

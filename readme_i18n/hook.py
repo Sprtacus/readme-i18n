@@ -1,13 +1,9 @@
 from __future__ import annotations
 
-"""readme_i18n.py – translate README and keep a multilingual link‑header in **every** README.
+"""readme_i18n.py – translate README and keep a multilingual link-header in **every** README.
 
-Enhancements
-------------
-* **Header now bigger** (level‑2 heading) and includes a credit line:
-  “Translations generated with *readme‑i18n*”.
-* Still fully customisable via `.readme-i18n-header.md` – simply remove or edit the
-  credit line if you prefer another wording.
+Now with **fancy HTML header** (flag emojis + credit) and **automatic translation** of
+static terms like “Languages:” + credit line using DeepL.
 """
 
 import argparse
@@ -18,7 +14,7 @@ import subprocess
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import List
+from typing import Dict, List
 
 try:
     import tomllib  # Python ≥ 3.11
@@ -92,26 +88,33 @@ class Config:
 # Header helpers
 # ---------------------------------------------------------------------------
 
+FLAGS: Dict[str, str] = {
+    "EN": "🇬🇧",
+    "DE": "🇩🇪",
+    "ZH": "🇨🇳",
+    "FR": "🇫🇷",
+    "ES": "🇪🇸",
+    # add more as needed
+}
+
+CREDIT_LINK = '<a href="https://github.com/Sprtacus/readme-i18n/">readme-i18n</a>'
+
 
 def _load_header_template(cfg: Config) -> str:
     if cfg.header_template_path.exists():
-        template = cfg.header_template_path.read_text(encoding="utf-8")
+        raw = cfg.header_template_path.read_text(encoding="utf-8")
     else:
-        template = (
-            "## Translations: {links}\n"
-            "<sub>Translations generated with "
-            "[readme‑i18n](https://github.com/Sprtacus/readme-i18n/)</sub>"
+        raw = (
+            "<p align=\"right\">\n  <strong>{languages_label}</strong> {links}<br>\n"
+            "  <sub>{credit}</sub>\n</p>"
         )
 
-    if "{links}" not in template:
-        template += "\n{links}"
-
-    if cfg.marker_start not in template:
-        template = f"{cfg.marker_start}\n{template}"
-    if cfg.marker_end not in template:
-        template = f"{template}\n{cfg.marker_end}"
-
-    return template
+    # Ensure markers present
+    if cfg.marker_start not in raw:
+        raw = f"{cfg.marker_start}\n{raw}"
+    if cfg.marker_end not in raw:
+        raw = f"{raw}\n{cfg.marker_end}"
+    return raw
 
 
 def _relpath(target: Path, base: Path) -> str:
@@ -121,18 +124,41 @@ def _relpath(target: Path, base: Path) -> str:
 def _build_links(cfg: Config, current_file: Path) -> str:
     cur_dir = current_file.parent
 
-    def link(label: str, target: Path) -> str:
-        return f"[{label}]({_relpath(target, cur_dir)})"
+    parts: List[str] = []
 
-    links = [link(cfg.source_lang, README_PATH)]
+    def add(label: str, target: Path, code: str):
+        flag = FLAGS.get(code, "")
+        parts.append(f'<a href="{_relpath(target, cur_dir)}">{flag} {label}</a>')
+
+    # Main README
+    add(cfg.source_lang, README_PATH, cfg.source_lang)
+
     for code in cfg.languages:
         fname = cfg.template.format(basename=README_PATH.stem, lang=code, ext=README_PATH.suffix)
-        links.append(link(code, cfg.output_dir / fname))
-    return " | ".join(links)
+        add(code, cfg.output_dir / fname, code)
+
+    return " ·\n  ".join(parts)  # newline+two spaces => markdown line-break
 
 
-def _build_header(cfg: Config, current_file: Path) -> str:
-    return _load_header_template(cfg).format(links=_build_links(cfg, current_file))
+def _translate_static(text: str, target_lang: str, translator: deepl.Translator | None) -> str:
+    if target_lang == "EN" or translator is None:
+        return text
+    try:
+        return translator.translate_text(text, target_lang=target_lang).text
+    except Exception:
+        return text  # fallback
+
+
+def _build_header(cfg: Config, current_file: Path, lang: str, translator: deepl.Translator | None) -> str:
+    template = _load_header_template(cfg)
+    header = template.format(
+        links=_build_links(cfg, current_file),
+        languages_label=_translate_static("Languages:", lang, translator),
+        credit=_translate_static(
+            f"automatically generated with {CREDIT_LINK} using DeepL", lang, translator
+        ),
+    )
+    return header
 
 
 def _strip_header(text: str, cfg: Config) -> str:
@@ -140,10 +166,10 @@ def _strip_header(text: str, cfg: Config) -> str:
     return re.sub(pat, "", text).lstrip()
 
 
-def ensure_header(file_path: Path, cfg: Config) -> bool:
+def ensure_header(file_path: Path, cfg: Config, lang: str, translator: deepl.Translator | None) -> bool:
     original = file_path.read_text(encoding="utf-8") if file_path.exists() else ""
     body = _strip_header(original, cfg)
-    new = f"{_build_header(cfg, file_path)}\n\n{body}".rstrip() + "\n"
+    new = f"{_build_header(cfg, file_path, lang, translator)}\n\n{body}".rstrip() + "\n"
 
     if new != original:
         file_path.write_text(new, encoding="utf-8")
@@ -172,12 +198,12 @@ def translate_text(text: str, translator: deepl.Translator, lang: str) -> str | 
 
 def build_translations(readme: Path, api_key: str, cfg: Config) -> List[Path]:
     translator = deepl.Translator(api_key)
-    src = _strip_header(readme.read_text(encoding="utf-8"), cfg)
+    src_body = _strip_header(readme.read_text(encoding="utf-8"), cfg)
     cfg.output_dir.mkdir(parents=True, exist_ok=True)
 
     generated: List[Path] = []
     for lang in cfg.languages:
-        txt = translate_text(src, translator, lang)
+        txt = translate_text(src_body, translator, lang)
         if txt is None:
             continue
         fname = cfg.template.format(basename=readme.stem, lang=lang, ext=readme.suffix)
@@ -185,7 +211,7 @@ def build_translations(readme: Path, api_key: str, cfg: Config) -> List[Path]:
         path.write_text(txt, encoding="utf-8")
         generated.append(path)
         logging.info("Written %s", path.relative_to(REPO_ROOT))
-        ensure_header(path, cfg)  # header for translation
+        ensure_header(path, cfg, lang, translator)
 
     return generated
 
@@ -208,7 +234,8 @@ def main(argv: List[str] | None = None) -> int:
     cfg = Config.load()
     logging.info("source=%s, languages=%s", cfg.source_lang, cfg.languages)
 
-    if ensure_header(README_PATH, cfg):
+    # Header in root README – translator None (no translation needed)
+    if ensure_header(README_PATH, cfg, cfg.source_lang, None):
         subprocess.run(["git", "add", str(README_PATH)], check=False)
 
     changed = args.files if args.files else subprocess.getoutput("git diff --cached --name-only").splitlines()
