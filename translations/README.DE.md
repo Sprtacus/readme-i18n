@@ -10,7 +10,7 @@
 # readme-i18n
 
 > ⚠️ **Dieses Projekt befindet sich in der frühen Entwicklungsphase und wird in meiner Freizeit gepflegt.** ⚠️
-> Rechnen Sie mit Änderungen - Beiträge und Ideen sind immer willkommen!
+> Erwarten Sie bahnbrechende Änderungen - Beiträge und Ideen sind immer willkommen!
 
 Übersetzen Sie Ihr `README.md` automatisch in mehrere Sprachen mit Hilfe der [DeepL API](https://www.deepl.com/docs-api/).  
 Ideal für Entwickler, die mehrsprachige Dokumentation auf dem neuesten Stand halten wollen - manuell oder automatisch über Git-Hooks.

@@ -8,7 +8,7 @@
 <!-- readme-i18n end -->
 
 # readme-i18n
-Test
+
 > ⚠️ **This project is in early development and maintained in my free time.** ⚠️  
 > Expect breaking changes – contributions and ideas are always welcome!
 
