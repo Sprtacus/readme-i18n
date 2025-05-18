@@ -1,8 +1,5 @@
-<!-- readme-i18n start -->
-### Translations: [EN](README.md) | [DE](translations/README.DE.md) | [ZH](translations/README.ZH.md)
-
-<sub>Translations generated with [readme‑i18n](https://github.com/Sprtacus/readme-i18n/)</sub>
-<!-- readme-i18n end -->
+<!-- readme-i18n start -->,## Translations: [EN](README.md) | [DE](translations/README.DE.md) | [ZH](translations/README.ZH.md)
+<sub>Translations generated with [readme‑i18n](https://github.com/Sprtacus/readme-i18n/)</sub>,<!-- readme-i18n end -->
 
 # readme-i18n
 

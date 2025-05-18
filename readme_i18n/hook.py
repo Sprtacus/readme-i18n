@@ -98,18 +98,18 @@ def _load_header_template(cfg: Config) -> str:
         template = cfg.header_template_path.read_text(encoding="utf-8")
     else:
         template = (
-            "### Translations: {links}\n\n"
+            "## Translations: {links}\n"
             "<sub>Translations generated with "
             "[readme‑i18n](https://github.com/Sprtacus/readme-i18n/)</sub>"
         )
 
     if "{links}" not in template:
-        template += "\n{links}"
+        template += "{links}"
 
     if cfg.marker_start not in template:
-        template = f"{cfg.marker_start}\n{template}"
+        template = f"{cfg.marker_start},{template}"
     if cfg.marker_end not in template:
-        template = f"{template}\n{cfg.marker_end}"
+        template = f"{template},{cfg.marker_end}"
 
     return template
 
