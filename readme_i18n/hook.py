@@ -151,7 +151,7 @@ def _build_header(cfg: Config, file_: Path, lang: str, tr: deepl.Translator | No
     return tmpl.format(
         links=_build_links(cfg, file_),
         languages_label=_translate("Languages:", lang, tr),
-        credit=_translate(f"automatically generated with {CREDIT_LINK} using DeepL", lang, tr),
+        credit=_translate(f"generated with {CREDIT_LINK} using DeepL", lang, tr),
     )
 
 
