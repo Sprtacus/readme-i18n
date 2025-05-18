@@ -1,8 +1,12 @@
+<!-- readme-i18n start -->
+**Available languages:** [EN](README.md) | [DE](translations/README.DE.md) | [ZH](translations/README.ZH.md)
+<!-- readme-i18n end -->
+
 # readme-i18n
 
 Automatically translate your `README.md` into multiple languages using the [DeepL API](https://www.deepl.com/docs-api/).  
 Ideal for developers who want to keep multilingual documentation up to date – manually or automatically via Git hooks.
-
+TEST
 ## ✨ Features
 TEST
 - Translates your `README.md` into any DeepL-supported language

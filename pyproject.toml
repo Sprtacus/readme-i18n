@@ -12,3 +12,16 @@ dependencies = []
 
 [project.scripts]
 readme-i18n-hook = "readme_i18n.hook:main"
+
+# Configure readme-i18n for your needs
+[tool.readme-i18n]
+# ISO-Codes for translations 
+# Find the ISO-Codes here: https://developers.deepl.com/docs/getting-started/supported-languages#translation-source-languages
+languages = ["DE", "ZH"]
+# Folder that will contain all translation files
+output_dir = "translations"
+# Filename template used inside output_dir
+# {basename} = original filename without extension
+# {lang}     = language code
+# {ext}      = original file extension (including dot)
+template = "{basename}.{lang}{ext}"

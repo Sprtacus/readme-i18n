@@ -5,4 +5,4 @@ repos:
         name: Check README translations
         entry: ./readme_i18n-hook.sh
         language: script
-        stages: [commit]  # pre-commit hook only
+        stages: [pre-commit]  # pre-commit hook only
