@@ -98,9 +98,9 @@ def _load_header_template(cfg: Config) -> str:
         template = cfg.header_template_path.read_text(encoding="utf-8")
     else:
         template = (
-            "## 🌐 Translations\n\n{links}\n\n"
+            "### Translations: {links}\n\n"
             "<sub>Translations generated with "
-            "[readme‑i18n](https://github.com/Sprtacus/readme-i18n/) 🚀</sub>"
+            "[readme‑i18n](https://github.com/Sprtacus/readme-i18n/)</sub>"
         )
 
     if "{links}" not in template:
