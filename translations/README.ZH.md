@@ -1,14 +1,18 @@
 <!-- readme-i18n start -->
-**Available languages:** [EN](../README.md) | [DE](README.DE.md) | [ZH](README.ZH.md)
+## 🌐 Translations
+
+[EN](../README.md) | [DE](README.DE.md) | [ZH](README.ZH.md)
+
+<sub>Translations generated with [readme‑i18n](https://github.com/Sprtacus/readme-i18n/) 🚀</sub>
 <!-- readme-i18n end -->
 
 # readme-i18n
 
 使用 [DeepL API](https://www.deepl.com/docs-api/) 自动将 `README.md` 翻译成多种语言。  
-对于希望保持多语言文档更新的开发人员来说，它是理想之选--手动或通过 Git 钩子自动更新。
-测试
+对于希望手动或通过 Git 钩子自动更新多语言文档的开发人员来说，这是理想之选。
+
 ## ✨ 功能
-测试
+
 - 将 `README.md` 翻译成任何 DeepL 支持的语言
 - 生成并更新 `README.xx.md` 文件（例如 `README.de.md`, `README.fr.md`)
 - 轻松集成到任何现有的 Git 项目中
