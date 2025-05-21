@@ -3,7 +3,6 @@ repos:
     hooks:
       - id: readme-i18n-check
         name: Check README translations
-        entry: readme-i18n-hook
-        language: python
-        types: [text]
-        stages: [push]
+        entry: ./readme_i18n-hook.sh
+        language: script
+        stages: [pre-commit]  # pre-commit hook only
